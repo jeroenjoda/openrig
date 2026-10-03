@@ -25,6 +25,7 @@
 
 import "./dashboard-fidelity.css";
 
+import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useRigSummary } from "../../hooks/useRigSummary.js";
 import { usePsEntries } from "../../hooks/usePsEntries.js";
@@ -173,7 +174,7 @@ interface FieldEnvironmentProps {
   version: string;
 }
 
-function FieldEnvironment({
+const FieldEnvironment = memo(function FieldEnvironment({
   station,
   operatorId,
   rigs,
@@ -217,9 +218,10 @@ function FieldEnvironment({
       </div>
     </section>
   );
-}
+});
 
-function LauncherCard({ dest }: { dest: Destination }) {
+// Destinations are static, so memo skips all six cards on every 3s ps refetch.
+const LauncherCard = memo(function LauncherCard({ dest }: { dest: Destination }) {
   return (
     <div className="df-cell">
       <Link
@@ -251,23 +253,25 @@ function LauncherCard({ dest }: { dest: Destination }) {
       </div>
     </div>
   );
-}
+});
 
-function DashboardFooter() {
-  // Semi-random drafting "artifacts" — fixed scatter (deterministic so the
-  // surface is stable across renders), per the locked twin.
-  const arts: Array<{ left: number; top: number; w: number; h: number }> = [
-    { left: 6, top: 14, w: 4, h: 1 },
-    { left: 16, top: 9, w: 1, h: 1 },
-    { left: 24, top: 16, w: 3, h: 1 },
-    { left: 34, top: 6, w: 1, h: 1 },
-    { left: 30, top: 13, w: 1, h: 1 },
-    { left: 46, top: 11, w: 5, h: 1 },
-    { left: 58, top: 7, w: 1, h: 1 },
-    { left: 66, top: 15, w: 2, h: 1 },
-    { left: 78, top: 10, w: 1, h: 1 },
-    { left: 90, top: 13, w: 4, h: 1 },
-  ];
+// Semi-random drafting "artifacts" — fixed scatter (deterministic so the
+// surface is stable across renders), per the locked twin. Module-level so it
+// is allocated once, not on every Dashboard re-render (ps polls every 3s).
+const FOOTER_ARTS: ReadonlyArray<{ left: number; top: number; w: number; h: number }> = [
+  { left: 6, top: 14, w: 4, h: 1 },
+  { left: 16, top: 9, w: 1, h: 1 },
+  { left: 24, top: 16, w: 3, h: 1 },
+  { left: 34, top: 6, w: 1, h: 1 },
+  { left: 30, top: 13, w: 1, h: 1 },
+  { left: 46, top: 11, w: 5, h: 1 },
+  { left: 58, top: 7, w: 1, h: 1 },
+  { left: 66, top: 15, w: 2, h: 1 },
+  { left: 78, top: 10, w: 1, h: 1 },
+  { left: 90, top: 13, w: 4, h: 1 },
+];
+
+const DashboardFooter = memo(function DashboardFooter() {
   return (
     <div className="df-foot" data-testid="dashboard-footer">
       <div className="df-foot-fl">
@@ -280,7 +284,7 @@ function DashboardFooter() {
         <span className="df-dissolve-blk" />
       </div>
       <div className="df-arts" aria-hidden="true">
-        {arts.map((a, i) => (
+        {FOOTER_ARTS.map((a, i) => (
           <i
             key={i}
             style={{ left: `${a.left}px`, top: `${a.top}px`, width: `${a.w}px`, height: `${a.h}px` }}
@@ -294,4 +298,4 @@ function DashboardFooter() {
       <span className="df-plus2" aria-hidden="true" />
     </div>
   );
-}
+});
